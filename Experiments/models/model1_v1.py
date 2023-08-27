@@ -3,7 +3,7 @@ from enum import Enum
 import numpy as np
 from torch import nn
 
-from models.modeling import VisionTransformer, CONFIGS
+from vit_models.modeling import VisionTransformer, CONFIGS
 
 
 class VitModels(Enum):

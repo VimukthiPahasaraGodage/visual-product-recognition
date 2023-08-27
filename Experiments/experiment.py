@@ -1,5 +1,7 @@
 from datetime import datetime
 from enum import Enum
+import pandas as pd
+import os
 
 import torch
 from torch.optim.lr_scheduler import ReduceLROnPlateau
@@ -8,6 +10,7 @@ from torch.utils.tensorboard import SummaryWriter
 
 from Experiments.models.model1_v1 import Model1
 from datasets import CustomDataset
+from datasets import TestDataset
 from loss_functions import cosine_similarity_contrastive_loss
 from loss_functions import euclidean_manhattan_contrastive_loss
 from models.model1_v1 import DistanceMeasures
@@ -26,9 +29,11 @@ class Experiment:
                  experiment_name,
                  training_dataset,
                  validation_dataset,
-                 test_dataset,
+                 query_dataset,
+                 gallery_dataset,
                  train_validation_image_dir,
-                 test_image_dir,
+                 query_image_dir,
+                 gallery_image_dir,
                  vit_model=VitModels.ViT_L_16,
                  linear_layer_output_dim=2048,
                  distance_measure=DistanceMeasures.COSINE,
@@ -42,32 +47,38 @@ class Experiment:
                  lr_reduce_factor=0.1,
                  batch_size=32,
                  shuffle=True,
-                 num_epochs=100):
+                 num_epochs=100,
+                 ):
         """
         Initialize an experiment with a model
 
-        :param experiment_name: Name of the experiment
-        :param training_dataset: Training dataset path
-        :param validation_dataset: Validation dataset path
-        :param test_dataset: Test dataset path
-        :param train_validation_image_dir: Folder path where images of training and validation images are located
-        :param test_image_dir: Folder path where images of test images are located
-        :param vit_model: The variation of the ViT model to be used in the experiment
-        :param linear_layer_output_dim: Number of output neurons in the linear layer
-        :param distance_measure: Cosine distance, Euclidean distance or Manhattan Distance
-        :param freeze_vit: Lock the weights of the ViT encoder
-        :param load_from_saved_model: Initialize model weights from a previously saved model
-        :param load_from_saved_optim_state: Restore the state of optimizer from a previously saved model
-        :param saved_model_path: The file path of the saved model to be used for model weights and optimizer state
-        :param optimizer_type: The type of optimizer, SGD or Adam
-        :param learning_rate: The initial learning rate of the optimizer
-        :param use_lr_scheduling: Use ReduceLROnPlateau learning rate scheduler
-        :param lr_reduce_factor: The factor of ReduceLROnPlateau
-        :param batch_size: Batch size for DataLoader
-        :param shuffle: Make True to shuffle the data when generating batches in DataLoader
-        :param num_epochs: Number of epochs to train
+        :param experiment_name: Name of the experiment.
+        :param training_dataset: Training dataset path.
+        :param validation_dataset: Validation dataset path.
+        :param query_dataset: Path of dataset containing information about queries.
+        :param gallery_dataset: Path of dataset containing information about gallery images.
+        :param train_validation_image_dir: Folder path where images of training and validation images are located.
+        :param test_image_dir: Folder path where images of test images are located.
+        :param vit_model: The variation of the ViT model to be used in the experiment.
+        :param linear_layer_output_dim: Number of output neurons in the linear layer.
+        :param distance_measure: Cosine distance, Euclidean distance or Manhattan Distance.
+        :param freeze_vit: Lock the weights of the ViT encoder.
+        :param load_from_saved_model: Initialize model weights from a previously saved model.
+        :param load_from_saved_optim_state: Restore the state of optimizer from a previously saved model.
+        :param saved_model_path: The file path of the saved model to be used for model weights and optimizer state.
+        :param optimizer_type: The type of optimizer, SGD or Adam.
+        :param learning_rate: The initial learning rate of the optimizer.
+        :param use_lr_scheduling: Use ReduceLROnPlateau learning rate scheduler.
+        :param lr_reduce_factor: The factor of ReduceLROnPlateau.
+        :param batch_size: Batch size for DataLoader.
+        :param shuffle: Make True to shuffle the data when generating batches in DataLoader.
+        :param num_epochs: Number of epochs to train.
         """
         self.experiment_name = experiment_name
+        self.query_dataset = query_dataset
+        self.gallery_dataset = gallery_dataset
+        self.query_image_dir = query_image_dir
+        self.gallery_image_dir = gallery_image_dir
         self.vit_model = vit_model
         self.linear_layer_output_dim = linear_layer_output_dim
         self.distance_measure = distance_measure
@@ -107,11 +118,6 @@ class Experiment:
                                        transform=transformations['validation_transformation_1'],
                                        target_transform=_target_transform)
         self.validation_generator = DataLoader(validation_set, **params)
-
-        test_set = CustomDataset(test_dataset, test_image_dir,
-                                 transform=transformations['testing_transformation_1'],
-                                 target_transform=_target_transform)
-        self.test_generator = DataLoader(test_set, **params)
 
         # Initialize the model
         self.model = self.__initialize_model()
@@ -327,3 +333,35 @@ class Experiment:
                 }, model_path)
 
             epoch_number += 1
+
+    def test(self):
+        # Read query dataframe
+        queries = pd.read_csv(self.query_dataset, low_memory=False)
+
+        # Enable evaluation mode in model
+        self.model.eval()
+
+        for index, row in queries.iterrows():
+            product_id = row['id']
+            test_set = TestDataset(row['img'],
+                                   product_id,
+                                   row['bbox_x'],
+                                   row['bbox_y'],
+                                   row['bbox_w'],
+                                   row['bbox_h'],
+                                   self.gallery_dataset,
+                                   self.query_image_dir,
+                                   self.gallery_image_dir,
+                                   transformations['test_transformation_1'])
+            test_generator = DataLoader(test_set, batch_size=64, shuffle=False, num_workers=12)
+
+            for idx, data in enumerate(test_generator):
+                query, gallery_img, label = data
+                distances = self.model(query, gallery_img)
+                output = torch.sub(1, torch.abs(torch.round(torch.clamp(torch.sub(product_id, label), min=-1, max=1))))
+                sorted_tensor, indices = torch.sort(distances, dim=0, descending=True)
+                rearranged_output = torch.unsqueeze(torch.squeeze(output[indices]), 1)
+                output = torch.sort(torch.squeeze(torch.multiply(rearranged_output, indices)), dim=0, descending=False)
+
+
+
