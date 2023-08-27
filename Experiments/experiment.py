@@ -7,11 +7,13 @@ from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
 
 from Experiments.models.model1_v1 import Model1
-from dataset import CustomDataset
+from datasets import CustomDataset
 from loss_functions import cosine_similarity_contrastive_loss
 from loss_functions import euclidean_manhattan_contrastive_loss
 from models.model1_v1 import DistanceMeasures
 from models.model1_v1 import VitModels
+from transform_functions import target_transformations
+from transform_functions import transformations
 
 
 class OptimizersType(Enum):
@@ -42,27 +44,28 @@ class Experiment:
                  shuffle=True,
                  num_epochs=100):
         """
+        Initialize an experiment with a model
 
-        :param experiment_name:
-        :param training_dataset:
-        :param validation_dataset:
-        :param test_dataset:
-        :param train_validation_image_dir:
-        :param test_image_dir:
-        :param vit_model:
-        :param linear_layer_output_dim:
-        :param distance_measure:
-        :param freeze_vit:
-        :param load_from_saved_model:
-        :param load_from_saved_optim_state:
-        :param saved_model_path:
-        :param optimizer_type:
-        :param learning_rate:
-        :param use_lr_scheduling:
-        :param lr_reduce_factor:
-        :param batch_size:
-        :param shuffle:
-        :param num_epochs:
+        :param experiment_name: Name of the experiment
+        :param training_dataset: Training dataset path
+        :param validation_dataset: Validation dataset path
+        :param test_dataset: Test dataset path
+        :param train_validation_image_dir: Folder path where images of training and validation images are located
+        :param test_image_dir: Folder path where images of test images are located
+        :param vit_model: The variation of the ViT model to be used in the experiment
+        :param linear_layer_output_dim: Number of output neurons in the linear layer
+        :param distance_measure: Cosine distance, Euclidean distance or Manhattan Distance
+        :param freeze_vit: Lock the weights of the ViT encoder
+        :param load_from_saved_model: Initialize model weights from a previously saved model
+        :param load_from_saved_optim_state: Restore the state of optimizer from a previously saved model
+        :param saved_model_path: The file path of the saved model to be used for model weights and optimizer state
+        :param optimizer_type: The type of optimizer, SGD or Adam
+        :param learning_rate: The initial learning rate of the optimizer
+        :param use_lr_scheduling: Use ReduceLROnPlateau learning rate scheduler
+        :param lr_reduce_factor: The factor of ReduceLROnPlateau
+        :param batch_size: Batch size for DataLoader
+        :param shuffle: Make True to shuffle the data when generating batches in DataLoader
+        :param num_epochs: Number of epochs to train
         """
         self.experiment_name = experiment_name
         self.vit_model = vit_model
@@ -88,14 +91,26 @@ class Experiment:
                   'shuffle': shuffle,
                   'num_workers': 12}
 
+        # Make the dissimilar label -1 from 0 when using cosine similarity as distance measurement
+        if distance_measure == DistanceMeasures.COSINE:
+            _target_transform = target_transformations['cosine_distance_transform']
+        else:
+            _target_transform = None
+
         # Create dataloaders
-        training_set = CustomDataset(training_dataset, train_validation_image_dir)
+        training_set = CustomDataset(training_dataset, train_validation_image_dir,
+                                     transform=transformations['train_transformation_1'],
+                                     target_transform=_target_transform)
         self.training_generator = DataLoader(training_set, **params)
 
-        validation_set = CustomDataset(validation_dataset, train_validation_image_dir)
+        validation_set = CustomDataset(validation_dataset, train_validation_image_dir,
+                                       transform=transformations['validation_transformation_1'],
+                                       target_transform=_target_transform)
         self.validation_generator = DataLoader(validation_set, **params)
 
-        test_set = CustomDataset(test_dataset, test_image_dir)
+        test_set = CustomDataset(test_dataset, test_image_dir,
+                                 transform=transformations['testing_transformation_1'],
+                                 target_transform=_target_transform)
         self.test_generator = DataLoader(test_set, **params)
 
         # Initialize the model

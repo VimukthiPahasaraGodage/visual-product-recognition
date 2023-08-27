@@ -13,7 +13,7 @@ class SquarePad:
         return functional.pad(image, padding, 0, 'constant')
 
 
-transform = {
+transformations = {
     'train_transformation_1': transforms.Compose([
         SquarePad(),
         transforms.Resize((224, 224)),
@@ -35,6 +35,6 @@ transform = {
     ])
 }
 
-target_transform = {
+target_transformations = {
     'cosine_distance_transform': lambda x: -1 if x == 0 else 1
 }
