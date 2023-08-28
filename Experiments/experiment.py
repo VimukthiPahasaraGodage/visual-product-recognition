@@ -199,11 +199,12 @@ class Experiment:
         # Getting the current time stamp for filename
         timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
         writer = SummaryWriter(
-            'runs/{}_experiment.{}_model1_vit_model.{}_outdim.{}_distm.{}'.format(timestamp,
-                                                                                  self.experiment_name,
-                                                                                  self.vit_model,
-                                                                                  self.linear_layer_output_dim,
-                                                                                  self.distance_measure))
+            'runs/{}_experiment.{}_model1_vit_model.{}_outdim.{}_distm.{}_optim.{}'.format(timestamp,
+                                                                                           self.experiment_name,
+                                                                                           self.vit_model,
+                                                                                           self.linear_layer_output_dim,
+                                                                                           self.distance_measure,
+                                                                                           self.optimizer_type))
         return writer
 
     def __train_one_epoch(self, epoch_index, tb_writer):
@@ -323,13 +324,14 @@ class Experiment:
             # Track the best performance, and save the model's state
             if avg_vloss < best_vloss:
                 best_vloss = avg_vloss
-                model_path = '{}_experiment.{}_model1_epoch.{}_vit_model.{}_outdim.{}_distm.{}' \
+                model_path = '{}_experiment.{}_model1_epoch.{}_vit_model.{}_outdim.{}_distm.{}_optim.{}' \
                     .format(datetime.now().strftime('%Y%m%d_%H%M%S'),
                             self.experiment_name,
                             epoch_number,
                             self.vit_model,
                             self.linear_layer_output_dim,
-                            self.distance_measure)
+                            self.distance_measure,
+                            self.optimizer_type)
                 torch.save({
                     'epoch': epoch,
                     'model_state_dict': self.model.state_dict(),
