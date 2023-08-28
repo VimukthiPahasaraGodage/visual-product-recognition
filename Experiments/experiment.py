@@ -1,14 +1,15 @@
 from datetime import datetime
 from enum import Enum
-import pandas as pd
-import os
 
+import pandas as pd
 import torch
 from torch.optim.lr_scheduler import ReduceLROnPlateau
 from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
 
 from Experiments.models.model1_v1 import Model1
+from accuracy_functions import average_precision
+from accuracy_functions import mean_average_precision
 from datasets import CustomDataset
 from datasets import TestDataset
 from loss_functions import cosine_similarity_contrastive_loss
@@ -138,6 +139,9 @@ class Experiment:
         # Initialize the loss function
         self.loss_fn = self.__initialize_loss_function()
 
+        # Initialize the summary writer
+        self.writer = self.__initialize_summary_writer()
+
     def __initialize_model(self):
         if not self.load_from_saved_model:
             model = Model1(self.vit_model,
@@ -190,6 +194,17 @@ class Experiment:
         else:
             loss_fn = euclidean_manhattan_contrastive_loss
         return loss_fn
+
+    def __initialize_summary_writer(self):
+        # Getting the current time stamp for filename
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        writer = SummaryWriter(
+            'runs/{}_experiment.{}_model1_vit_model.{}_outdim.{}_distm.{}'.format(timestamp,
+                                                                                  self.experiment_name,
+                                                                                  self.vit_model,
+                                                                                  self.linear_layer_output_dim,
+                                                                                  self.distance_measure))
+        return writer
 
     def __train_one_epoch(self, epoch_index, tb_writer):
         """
@@ -268,15 +283,6 @@ class Experiment:
         :return:
         """
 
-        # Initializing the summary writer and getting the current time stamp for filename
-        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-        writer = SummaryWriter(
-            'runs/{}_experiment.{}_model1_vit_model.{}_outdim.{}_distm.{}'.format(timestamp,
-                                                                                  self.experiment_name,
-                                                                                  self.vit_model,
-                                                                                  self.linear_layer_output_dim,
-                                                                                  self.distance_measure))
-
         EPOCHS = self.num_epochs
 
         epoch_number = 0
@@ -287,7 +293,7 @@ class Experiment:
 
             # Make sure gradient tracking is on, and do a pass over the data
             self.model.train(True)
-            avg_loss = self.__train_one_epoch(epoch_number, writer)
+            avg_loss = self.__train_one_epoch(epoch_number, self.writer)
 
             running_vloss = 0.0
             # Set the model to evaluation mode, disabling dropout and using population
@@ -309,16 +315,16 @@ class Experiment:
 
             # Log the running loss averaged per batch
             # for both training and validation
-            writer.add_scalars('Training vs. Validation Loss',
-                               {'Training': avg_loss, 'Validation': avg_vloss},
-                               epoch_number + 1)
-            writer.flush()
+            self.writer.add_scalars('Training vs. Validation Loss',
+                                    {'Training': avg_loss, 'Validation': avg_vloss},
+                                    epoch_number + 1)
+            self.writer.flush()
 
             # Track the best performance, and save the model's state
             if avg_vloss < best_vloss:
                 best_vloss = avg_vloss
                 model_path = '{}_experiment.{}_model1_epoch.{}_vit_model.{}_outdim.{}_distm.{}' \
-                    .format(timestamp,
+                    .format(datetime.now().strftime('%Y%m%d_%H%M%S'),
                             self.experiment_name,
                             epoch_number,
                             self.vit_model,
@@ -341,6 +347,9 @@ class Experiment:
         # Enable evaluation mode in model
         self.model.eval()
 
+        query = 0
+        average_precisions = torch.tensor([0])
+
         for index, row in queries.iterrows():
             product_id = row['id']
             test_set = TestDataset(row['img'],
@@ -355,13 +364,41 @@ class Experiment:
                                    transformations['test_transformation_1'])
             test_generator = DataLoader(test_set, batch_size=64, shuffle=False, num_workers=12)
 
+            distances = torch.tensor([[0]])
+            gtp_indices = torch.tensor([[0]])
+
             for idx, data in enumerate(test_generator):
                 query, gallery_img, label = data
-                distances = self.model(query, gallery_img)
-                output = torch.sub(1, torch.abs(torch.round(torch.clamp(torch.sub(product_id, label), min=-1, max=1))))
-                sorted_tensor, indices = torch.sort(distances, dim=0, descending=True)
-                rearranged_output = torch.unsqueeze(torch.squeeze(output[indices]), 1)
-                output = torch.sort(torch.squeeze(torch.multiply(rearranged_output, indices)), dim=0, descending=False)
+                dist = self.model(query, gallery_img)
+                gtps = torch.sub(1, torch.abs(torch.round(torch.clamp(torch.sub(product_id, label), min=-1, max=1))))
+                distances = torch.cat((distances, dist), dim=0)
+                gtp_indices = torch.cat((gtp_indices, gtps), dim=0)
 
+            distances = distances[1:]
+            gtp_indices = gtp_indices[1:]
+            _, sort_indices = torch.sort(distances, dim=0, descending=True)
+            rearranged_gpts = torch.unsqueeze(torch.squeeze(gtp_indices[torch.add(1, sort_indices)]), 1)
+            gtp_positions, _ = torch.sort(torch.squeeze(torch.multiply(rearranged_gpts, torch.add(1, sort_indices))),
+                                          dim=0,
+                                          descending=False)
+            gtp_positions = torch.squeeze(gtp_positions[gtp_positions.nonzero()])
+            avg_precision = average_precision(gtp_positions)
+            print('Query {} Average Precision {}'.format(query + 1, avg_precision.item()))
 
+            average_precisions = torch.cat((average_precisions, avg_precision), dim=0)
 
+            # Log the average precision per query
+            self.writer.add_scalars('Testing: Average Precisions',
+                                    {'Query': query, 'Query_Image': row['img'], 'Validation': avg_precision.item()},
+                                    query + 1)
+            self.writer.flush()
+
+            query += 1
+
+        average_precisions = average_precisions[1:]
+        mean_avg_precision = mean_average_precision(average_precisions)
+        print('Mean Average Precision {}'.format(mean_avg_precision))
+
+        # Log the mean average precision for the model
+        self.writer.add_scalars('Mean Average Precision', mean_avg_precision.item())
+        self.writer.flush()
