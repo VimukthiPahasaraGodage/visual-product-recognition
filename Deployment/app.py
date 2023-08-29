@@ -1,4 +1,5 @@
 import os
+from deployment_model import DeploymentModel
 
 from flask import Flask, render_template, request, send_from_directory
 
@@ -9,6 +10,7 @@ UPLOAD_FOLDER = os.path.join(app.root_path, 'static', 'images')
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
 
+mobdjbf = DeploymentModel(dvgdvf)
 
 @app.route('/')
 def index():

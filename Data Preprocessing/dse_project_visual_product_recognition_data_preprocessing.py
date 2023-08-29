@@ -1,42 +1,8 @@
-from google.colab import drive
-drive.mount('/content/gdrive')
-
-import os
-import shutil
-import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
 import random
-from sklearn.utils import shuffle
-import cv2
-from pathlib import Path
-from sklearn.metrics.pairwise import cosine_similarity
+
+import pandas as pd
 from sklearn.model_selection import train_test_split
-
-# Commented out IPython magic to ensure Python compatibility.
-%%capture
-!unzip /content/gdrive/MyDrive/archive.zip -d /content/training-dataset/
-
-!mv "/content/training-dataset/train/train" "/content/"
-!mv "/content/training-dataset/test/test" "/content/"
-
-!rmdir "/content/training-dataset/train"
-!rmdir "/content/training-dataset/test"
-
-!mv "/content/train" "/content/training-dataset/"
-!mv "/content/test" "/content/training-dataset/"
-
-source_dir = '/content/training-dataset/test/'
-destination_dir = '/content/training-dataset/train/'
-
-images = [f for f in os.listdir(source_dir) if f.lower().endswith('.jpg')]
-
-for image in images:
-    source_path = os.path.join(source_dir, image)
-    destination_path = os.path.join(destination_dir, image)
-    shutil.move(source_path, destination_path)
-
-!rmdir "/content/training-dataset/test"
+from sklearn.utils import shuffle
 
 training_dataset_train = pd.read_csv('training-dataset/train.csv', low_memory=False)
 training_dataset_test = pd.read_csv('training-dataset/test.csv', low_memory=False)
@@ -46,7 +12,7 @@ train_df = pd.concat([training_dataset_train, training_dataset_test], ignore_ind
 train_df.to_csv('trainn.csv', index=False)
 
 # Create an empty DataFrame to store the results
-results_1 = pd.DataFrame(columns=['image1', 'image2', 'similarity','class'])
+results_1 = pd.DataFrame(columns=['image1', 'image2', 'similarity', 'class'])
 
 # Create a copy of the train_df DataFrame
 train_df_copy = train_df.copy()
@@ -78,13 +44,12 @@ for i in range(num_iterations):
         if class1 == class2:
             similarity = 1
 
-
         # Create a new DataFrame with the information
         result_df = pd.DataFrame({
             'image1': [image1_name],
             'image2': [image2_name],
             'similarity': [similarity],
-            'class':[class1]
+            'class': [class1]
         })
 
         # Append the result DataFrame to the list
@@ -112,7 +77,7 @@ filtered_results_1 = results_1.drop_duplicates(subset='sorted_images')
 results_1 = filtered_results_1.drop(columns=['sorted_images'])
 
 # Create an empty DataFrame to store the results
-results_2 = pd.DataFrame(columns=['image1', 'image2', 'similarity','class'])
+results_2 = pd.DataFrame(columns=['image1', 'image2', 'similarity', 'class'])
 
 # Create a copy of the train_df DataFrame
 train_df_copy = train_df.copy()
@@ -157,12 +122,8 @@ for i in range(num_iterations):
     # Append the result DataFrame to the list
     dfs.append(result_df)
 
-
-
 # Concatenate all individual DataFrames into the final results DataFrame
 results_2 = pd.concat(dfs, ignore_index=True)
-
-
 
 print(f"Generated {num_iterations} similarity pairs and saved to 'random_image_similarity_results.csv'")
 
@@ -175,7 +136,7 @@ filtered_results_2 = results_2.drop_duplicates(subset='sorted_images')
 # Drop the temporary sorted_images column
 results_2 = filtered_results_2.drop(columns=['sorted_images'])
 
-similarity_results= pd.concat([results_1, results_2], ignore_index=True)
+similarity_results = pd.concat([results_1, results_2], ignore_index=True)
 similarity_results = shuffle(similarity_results)
 
 # Get the unique classes in the dataset
@@ -199,8 +160,8 @@ for class_name in unique_classes:
 train_df = pd.concat(train_data, ignore_index=True)
 val_df = pd.concat(val_data, ignore_index=True)
 
-train_df=train_df.drop(columns=['class'])
-val_df=val_df.drop(columns=['class'])
+train_df = train_df.drop(columns=['class'])
+val_df = val_df.drop(columns=['class'])
 
 # Save the training and validation datasets to CSV files
 train_df.to_csv('train_dataset.csv', index=False)
