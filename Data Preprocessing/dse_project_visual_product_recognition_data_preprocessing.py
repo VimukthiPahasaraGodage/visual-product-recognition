@@ -14,8 +14,8 @@ from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.model_selection import train_test_split
 
 # Commented out IPython magic to ensure Python compatibility.
-# %%capture
-# !unzip /content/gdrive/MyDrive/archive.zip -d /content/training-dataset/
+%%capture
+!unzip /content/gdrive/MyDrive/archive.zip -d /content/training-dataset/
 
 !mv "/content/training-dataset/train/train" "/content/"
 !mv "/content/training-dataset/test/test" "/content/"
