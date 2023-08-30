@@ -19,13 +19,13 @@ class DistanceMeasures(Enum):
 
 class Model1(nn.Module):
     def __init__(self,
-                 vit_model="ViT-L_16",
+                 vit_model=VitModels.ViT_L_16,
                  linear_layer_output_dim=2048,
                  distance_measure=DistanceMeasures.COSINE,
                  load_from_saved_model=False):
         super(Model1, self).__init__()
 
-        config = CONFIGS[vit_model]
+        config = CONFIGS[vit_model.value]
 
         if vit_model == VitModels.ViT_L_16:
             embedding_dim = 1024
