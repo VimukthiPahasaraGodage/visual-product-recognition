@@ -16,7 +16,7 @@ def load_images():
 
 
 # Title of the app
-st.title("Visual Product Recognition Demo")
+st.title("Visual Product Recognition Demo - Group 15")
 
 # Adding text
 st.write("Visual Product Recognition systems let you find the product you are looking for very easily by replacing the"

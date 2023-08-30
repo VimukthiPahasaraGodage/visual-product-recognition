@@ -362,8 +362,8 @@ class Experiment:
         # Enable evaluation mode in model
         self.model.eval()
 
-        query = 0
-        average_precisions = torch.tensor([0])
+        query_index = 0
+        average_precisions = torch.tensor([[0]]).to(device)
 
         number_of_queries = 10
         i = 0
@@ -411,19 +411,19 @@ class Experiment:
             except IndexError:
                 gtp_positions = torch.unsqueeze(gtp_positions, dim=0)
             avg_precision = average_precision(gtp_positions)
-            print('Query {} Average Precision {}'.format(query + 1, avg_precision.item()))
+            print('Query {} Average Precision {}'.format(query_index + 1, avg_precision.item()))
 
             average_precisions = torch.cat((average_precisions, avg_precision), dim=0)
 
             # Log the average precision per query
             self.writer.add_scalars('Testing: Average Precisions',
-                                    {'Query': query, 'Query_Image': row['img'], 'Validation': avg_precision.item()},
-                                    query + 1)
+                                    {'Query': query_index, 'Query_Image': row['img'], 'Validation': avg_precision.item()},
+                                    query_index + 1)
             self.writer.flush()
 
-            query += 1
+            query_index += 1
 
-        average_precisions = average_precisions[1:]
+        average_precisions = torch.squeeze(average_precisions[1:])
         mean_avg_precision = mean_average_precision(average_precisions)
         print('Mean Average Precision {}'.format(mean_avg_precision))
 
