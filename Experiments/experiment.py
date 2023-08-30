@@ -404,7 +404,6 @@ class Experiment:
             gtp_positions, _ = torch.sort(torch.squeeze(torch.multiply(rearranged_gpts, torch.add(1, sort_indices))),
                                           dim=0,
                                           descending=False)
-            print(gtp_positions.shape)
             gtp_positions = torch.squeeze(gtp_positions[gtp_positions.nonzero()])
             try:
                 check = gtp_positions.shape[0]
