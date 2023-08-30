@@ -390,14 +390,8 @@ class Experiment:
                 query, gallery_img, label = data
                 query, gallery_img, label = query.to(device), gallery_img.to(device), label.to(device)
                 dist = torch.unsqueeze(self.model(query, gallery_img), dim=1)
-                print(dist)
-                print(dist.shape)
-                print(distances)
-                print(distances.shape)
                 # gtps = torch.sub(1, torch.abs(torch.round(torch.clamp(torch.sub(product_id, label), min=-1, max=1))))
-                gtps = torch.unsqueeze(label)
-                print(product_id)
-                print(product_id.shape)
+                gtps = torch.unsqueeze(label, dim=1)
                 print(label)
                 print(label.shape)
                 print(gtps)
@@ -408,6 +402,8 @@ class Experiment:
 
             distances = distances[1:]
             gtp_indices = gtp_indices[1:]
+            print(distances.shape)
+            print(gtp_indices.shape)
             _, sort_indices = torch.sort(distances, dim=0, descending=True)
             print(sort_indices)
             rearranged_gpts = torch.unsqueeze(torch.squeeze(gtp_indices[torch.add(1, sort_indices)]), 1)
