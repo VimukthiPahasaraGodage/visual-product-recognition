@@ -63,10 +63,11 @@ class DeploymentModel:
 
         distances = torch.tensor([[0]])
 
-        for idx, data in enumerate(gallery_generator):
-            query, gallery_img, label = data
-            dist = self.model(query, gallery_img)
-            distances = torch.cat((distances, dist), dim=0)
+        with torch.no_grad():
+            for idx, data in enumerate(gallery_generator):
+                query, gallery_img, label = data
+                dist = self.model(query, gallery_img)
+                distances = torch.cat((distances, dist), dim=0)
 
         distances = distances[1:]
         _, sort_indices = torch.sort(distances, dim=0, descending=True)
