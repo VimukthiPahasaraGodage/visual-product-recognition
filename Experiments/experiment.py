@@ -376,7 +376,7 @@ class Experiment:
                                    self.gallery_dataset,
                                    self.query_image_dir,
                                    self.gallery_image_dir,
-                                   transformations['test_transformation_1'])
+                                   transformations['testing_transformation_1'])
             test_generator = DataLoader(test_set, batch_size=64, shuffle=False, num_workers=32)
 
             distances = torch.tensor([[0]])
