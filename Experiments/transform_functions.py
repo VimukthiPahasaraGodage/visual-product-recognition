@@ -5,18 +5,18 @@ from torchvision.transforms import functional
 
 class SquarePad:
     def __call__(self, image):
-        w, h = image.size
+        c, w, h = image.shape
         max_wh = np.max([w, h])
         hp = int((max_wh - w) / 2)
         vp = int((max_wh - h) / 2)
         padding = [hp, vp, hp, vp]
-        return functional.pad(image, padding, 0, 'constant')
+        return functional.pad(image, padding, 0, 'constant').numpy()
 
 
 transformations = {
     'train_transformation_1': transforms.Compose([
         SquarePad(),
-        transforms.Resize((224, 224)),
+        transforms.Resize((224, 224), antialias=True),
         transforms.RandomApply([transforms.RandomRotation((0, 180))], p=0.4),
         transforms.RandomApply([transforms.RandomHorizontalFlip()], p=0.3),
         transforms.RandomApply([transforms.RandomVerticalFlip()], p=0.2),
