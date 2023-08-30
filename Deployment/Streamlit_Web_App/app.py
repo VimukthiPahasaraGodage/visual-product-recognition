@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+import pandas as pd
 import numpy as np
 import streamlit as st
 from PIL import Image
@@ -41,6 +42,18 @@ if image_data is not None:
         drawing_mode="rect",
         key="canvas"
     )
+
+    multiple_bounding_box_error = None
+
+    if canvas_result.json_data is not None:
+        objects = pd.json_normalize(canvas_result.json_data["objects"])  # need to convert obj to str because PyArrow
+        if len(objects) > 1:
+            multiple_bounding_box_error = st.error('You cannot have multiple bounding boxes within a single image. '
+                                                   'Please undo the previously drawn bounding box before drawing'
+                                                   'another', icon=)
+        for col in objects.select_dtypes(include=['object']).columns:
+            objects[col] = objects[col].astype("str")
+        st.dataframe(objects)
 
 # drawing_mode = st.sidebar.selectbox(
 #     "Drawing tool:", ("point", "freedraw", "line", "rect", "circle", "transform")

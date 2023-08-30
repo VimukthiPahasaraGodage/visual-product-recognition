@@ -379,8 +379,8 @@ class Experiment:
                                    transformations['testing_transformation_1'])
             test_generator = DataLoader(test_set, batch_size=64, shuffle=False, num_workers=32)
 
-            distances = torch.tensor([[0]])
-            gtp_indices = torch.tensor([[0]])
+            distances = torch.tensor([[0]]).to(device)
+            gtp_indices = torch.tensor([[0]]).to(device)
 
             for idx, data in enumerate(test_generator):
                 query, gallery_img, label = data
