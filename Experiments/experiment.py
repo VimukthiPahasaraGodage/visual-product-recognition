@@ -392,7 +392,6 @@ class Experiment:
                     query, gallery_img, label = query.to(device), gallery_img.to(device), label.cpu()
                     dist = self.model(query, gallery_img)
                     dist = torch.unsqueeze(dist, dim=1).cpu()
-                    # gtps = torch.sub(1, torch.abs(torch.round(torch.clamp(torch.sub(product_id, label), min=-1, max=1))))
                     gtps = torch.unsqueeze(label, dim=1)
                     distances = torch.cat((distances, dist), dim=0)
                     gtp_indices = torch.cat((gtp_indices, gtps), dim=0)
@@ -416,7 +415,7 @@ class Experiment:
 
             # Log the average precision per query
             self.writer.add_scalars('Average Precision',
-                                    avg_precision.item(),
+                                    {'value': avg_precision},
                                     query_index + 1)
             self.writer.flush()
 
@@ -427,5 +426,5 @@ class Experiment:
         print('Mean Average Precision {}'.format(mean_avg_precision))
 
         # Log the mean average precision for the model
-        self.writer.add_scalars('Mean Average Precision', mean_avg_precision.item())
+        self.writer.add_scalars('Mean Average Precision', {'value': mean_avg_precision})
         self.writer.flush()
