@@ -8,7 +8,7 @@ from streamlit_drawable_canvas import st_canvas
 
 def load_images():
     image_files = glob.glob(
-        "C:/UoM/Semester_5/CS3501_Data_Science_and_Engineering_Project/visual-product-recognition/Pictures/*.*")
+        "Pictures/*.*")
     for i, image_file in enumerate(image_files):
         if i % 5 == 0:
             cols = st.columns(5)

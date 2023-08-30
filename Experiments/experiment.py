@@ -404,8 +404,12 @@ class Experiment:
             gtp_positions, _ = torch.sort(torch.squeeze(torch.multiply(rearranged_gpts, torch.add(1, sort_indices))),
                                           dim=0,
                                           descending=False)
-            print(gtp_positions[gtp_positions.nonzero()])
+            print(gtp_positions.shape)
             gtp_positions = torch.squeeze(gtp_positions[gtp_positions.nonzero()])
+            try:
+                check = gtp_positions.shape[0]
+            except IndexError:
+                gtp_positions = torch.unsqueeze(gtp_positions, dim=0)
             avg_precision = average_precision(gtp_positions)
             print('Query {} Average Precision {}'.format(query + 1, avg_precision.item()))
 

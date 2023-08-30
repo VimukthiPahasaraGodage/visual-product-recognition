@@ -26,7 +26,7 @@ class DeploymentModel:
 
         # CUDA for PyTorch
         use_cuda = torch.cuda.is_available()
-        device = torch.device("cuda:0" if use_cuda else "cpu")
+        self.device = torch.device("cuda:0" if use_cuda else "cpu")
         torch.backends.cudnn.benchmark = True
 
         checkpoint = torch.load(model_weights_path)
@@ -35,7 +35,7 @@ class DeploymentModel:
             self.model = Model1(model_params)
         self.model.load_state_dict(checkpoint['model_state_dict'])
         # Use gpu for model training if available
-        self.model.to(device)
+        self.model.to(self.device)
         # Enable evaluation mode in model
         self.model.eval()
 
@@ -59,14 +59,17 @@ class DeploymentModel:
                                   self.gallery_image_dir,
                                   transformations['test_transformation_1'])
 
+        device = self.device
+
         gallery_generator = DataLoader(gallery_set, batch_size=100, shuffle=False, num_workers=12)
 
-        distances = torch.tensor([[0]])
+        distances = torch.tensor([[0]]).to(device)
 
         with torch.no_grad():
             for idx, data in enumerate(gallery_generator):
                 query, gallery_img, label = data
-                dist = self.model(query, gallery_img)
+                query, gallery_img, label = query.to(device), gallery_img.to(device), label.to(device)
+                dist = torch.unsqueeze(self.model(query, gallery_img), dim=1)
                 distances = torch.cat((distances, dist), dim=0)
 
         distances = distances[1:]
