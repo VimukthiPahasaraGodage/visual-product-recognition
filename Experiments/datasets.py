@@ -25,11 +25,11 @@ class CustomDataset(Dataset):
         return len(self.dataframe)
 
     def __getitem__(self, idx):
-        img_1_path = os.path.join(self.image_dir, self.dataframe.iloc[idx, 0])
-        img_2_path = os.path.join(self.image_dir, self.dataframe.iloc[idx, 1])
+        img_1_path = os.path.join(self.image_dir, self.dataframe.iloc[idx, 1])
+        img_2_path = os.path.join(self.image_dir, self.dataframe.iloc[idx, 2])
         img_1 = read_image(img_1_path)
         img_2 = read_image(img_2_path)
-        label = self.dataframe.iloc[idx, 2]
+        label = self.dataframe.iloc[idx, 3]
         if self.transform:
             img_1 = self.transform(img_1)
             img_2 = self.transform(img_2)
@@ -78,8 +78,8 @@ class TestDataset(Dataset):
         return len(self.dataframe)
 
     def __getitem__(self, idx):
-        gallery_img_path = os.path.join(self.gallery_img_dir, self.dataframe.iloc[idx, 0])
-        gallery_img_id = self.dataframe.iloc[idx, 1]
+        gallery_img_path = os.path.join(self.gallery_img_dir, self.dataframe.iloc[idx, 1])
+        gallery_img_id = self.dataframe.iloc[idx, 2]
         gallery_img = read_image(gallery_img_path)
         if self.transform:
             gallery_img = self.transform(gallery_img)
