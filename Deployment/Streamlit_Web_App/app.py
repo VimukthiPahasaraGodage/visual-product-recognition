@@ -1,18 +1,35 @@
 import glob
+from datetime import datetime
 
 import pandas as pd
 import streamlit as st
 from PIL import Image
 from streamlit_drawable_canvas import st_canvas
+from torchvision import transforms
 
+from Deployment.deployment_model import AvailableModels
+from Deployment.deployment_model import DeploymentModel
+from Experiments.models.model1_v1 import DistanceMeasures
+from Experiments.models.model1_v1 import VitModels
 
-def load_images():
-    image_files = glob.glob(
-        "Pictures/*.*")
-    for i, image_file in enumerate(image_files):
-        if i % 5 == 0:
-            cols = st.columns(5)
-        cols[i % 5].image(image_file)
+model_params = {'vit_model': VitModels.ViT_B_16,
+                'linear_layer_output_dim': 768,
+                'distance_measure': DistanceMeasures.EUCLIDEAN,
+                'load_from_saved_model': True}
+
+model = DeploymentModel(
+    '/home/group15/VPR/Project_Code/saved.20230830_225806_experiment.experiment1.unfreeze_layers.no_lr_schedule_model1_epoch.0_vit_model.VitModels.ViT_B_16_outdim.768_distm.DistanceMeasures.EUCLIDEAN_optim.OptimizersType.Adam',
+    '/home/group15/VPR/Project_Code/Data Preprocessing/generated_datasets/test_gallery.csv',
+    '/home/group15/VPR/gallery_images',
+    AvailableModels.Models1,
+    **model_params)
+
+def load_images(img_list, limit=100):
+    for i, image_file in enumerate(img_list):
+        if i > limit:
+            if i % 5 == 0:
+                cols = st.columns(5)
+            cols[i % 5].image('gallery_images/' + image_file)
 
 
 # Title of the app
@@ -26,8 +43,13 @@ image_data = st.file_uploader(label='Upload the image you want to query on', typ
 canvas_max_height = 500
 canvas_max_width = 500
 
+query_image_folder = 'query_images/'
+
 if image_data is not None:
+    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+    image_file_name = str(timestamp) + '.jpg'
     uploaded_image = Image.open(image_data)
+    uploaded_image.save('query_images/' + image_file_name)
     width, height = uploaded_image.size
 
     canvas_height = canvas_max_height
@@ -70,6 +92,12 @@ if image_data is not None:
         elif number_of_bounding_boxes == 1 and multiple_bounding_box_error is not None:
             multiple_bounding_box_error.empty()
 
+        # Define a transform to convert PIL
+        # image to a Torch tensor
+        transform = transforms.Compose([
+            transforms.PILToTensor()
+        ])
+
         for col in objects.select_dtypes(include=['object']).columns:
             objects[col] = objects[col].astype("str")
         if number_of_bounding_boxes == 1:
@@ -80,4 +108,10 @@ if image_data is not None:
             st.write(f"Bounding Box : Left: {bbox_x}, Top: {bbox_y}, Width: {bbox_w}, Height: {bbox_h}")
 
             if st.button("Search Similar Products", type="primary"):
-                load_images()
+                list_of_images = model.get_sorted_gallery_images(image_file_name,
+                                                                 query_image_folder,
+                                                                 bbox_x,
+                                                                 bbox_y,
+                                                                 bbox_w,
+                                                                 bbox_h)
+                load_images(list_of_images)

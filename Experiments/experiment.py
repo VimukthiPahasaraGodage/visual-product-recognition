@@ -362,14 +362,10 @@ class Experiment:
         # Enable evaluation mode in model
         self.model.eval()
 
-        query_index = 0
         average_precisions = torch.tensor([0])
 
-        number_of_queries = 10
         query_index = 0
         for index, row in queries.iterrows():
-            if query_index >= number_of_queries:
-                break
             product_id = row['id']
             test_set = TestDataset(row['img'],
                                    product_id,
