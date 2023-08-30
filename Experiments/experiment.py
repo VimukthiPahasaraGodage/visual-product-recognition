@@ -399,20 +399,13 @@ class Experiment:
 
             distances = distances[1:]
             gtp_indices = gtp_indices[1:]
-            print(distances.shape)
-            print(gtp_indices.shape)
             _, sort_indices = torch.sort(distances, dim=0, descending=True)
-            print(sort_indices)
             rearranged_gpts = torch.unsqueeze(torch.squeeze(gtp_indices[sort_indices]), 1)
-            print(rearranged_gpts)
             gtp_positions, _ = torch.sort(torch.squeeze(torch.multiply(rearranged_gpts, torch.add(1, sort_indices))),
                                           dim=0,
                                           descending=False)
-            print(gtp_positions)
             gtp_positions = torch.squeeze(gtp_positions[gtp_positions.nonzero()])
-            print(gtp_positions)
             avg_precision = average_precision(gtp_positions)
-            print(avg_precision)
             print('Query {} Average Precision {}'.format(query + 1, avg_precision.item()))
 
             average_precisions = torch.cat((average_precisions, avg_precision), dim=0)

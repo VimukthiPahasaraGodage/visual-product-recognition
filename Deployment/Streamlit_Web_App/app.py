@@ -1,15 +1,17 @@
-import matplotlib.pyplot as plt
+import glob
+
 import pandas as pd
-import numpy as np
 import streamlit as st
 from PIL import Image
 from streamlit_drawable_canvas import st_canvas
-import glob
 
 
 def load_images():
-    image_files = glob.glob("C:\\UoM\\Semester_5\\CS3501_Data_Science_and_Engineering_Project\\visual-product-recognition\\Pictures\\*.*")
-    st.write(image_files)
+    image_files = glob.glob(
+        "C:\\UoM\\Semester_5\\CS3501_Data_Science_and_Engineering_Project\\visual-product-recognition\\Pictures\\*.*")
+    cols = st.columns(5)
+    for i, image_file in enumerate(image_files):
+        cols[i % 5].image(image_file)
 
 
 # Title of the app
@@ -78,5 +80,3 @@ if image_data is not None:
 
             if st.button("Search Similar Products", type="primary"):
                 load_images()
-
-
