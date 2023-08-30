@@ -2,8 +2,8 @@ from experiment import Experiment
 from models.model1_v1 import DistanceMeasures
 from models.model1_v1 import VitModels
 
-training_dataset_path = '/home/group15/VPR/Project_Code/Data Preprocessing/generated_datasets/train_dataset.csv'
-validation_dataset_path = '/home/group15/VPR/Project_Code/Data Preprocessing/generated_datasets/validation_dataset.csv'
+training_dataset_path = '/home/group15/VPR/Project_Code/Data Preprocessing/generated_datasets/train_dataset_small.csv'
+validation_dataset_path = '/home/group15/VPR/Project_Code/Data Preprocessing/generated_datasets/validation_dataset_small.csv'
 query_dataset_path = '/home/group15/VPR/Project_Code/Data Preprocessing/generated_datasets/test_queries.csv'
 gallery_dataset_path = '/home/group15/VPR/Project_Code/Data Preprocessing/generated_datasets/test_gallery.csv'
 train_validation_image_dir = '/home/group15/VPR/train_validation_images'

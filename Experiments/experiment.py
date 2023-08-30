@@ -106,7 +106,7 @@ class Experiment:
         # Dataloader parameters
         params = {'batch_size': batch_size,
                   'shuffle': shuffle,
-                  'num_workers': 12}
+                  'num_workers': 32}
 
         # Make the dissimilar label -1 from 0 when using cosine similarity as distance measurement
         if distance_measure.value == DistanceMeasures.COSINE.value:
@@ -377,7 +377,7 @@ class Experiment:
                                    self.query_image_dir,
                                    self.gallery_image_dir,
                                    transformations['test_transformation_1'])
-            test_generator = DataLoader(test_set, batch_size=64, shuffle=False, num_workers=12)
+            test_generator = DataLoader(test_set, batch_size=64, shuffle=False, num_workers=32)
 
             distances = torch.tensor([[0]])
             gtp_indices = torch.tensor([[0]])
