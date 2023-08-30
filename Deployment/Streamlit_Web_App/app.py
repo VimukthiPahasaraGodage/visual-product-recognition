@@ -66,6 +66,6 @@ if image_data is not None:
             bbox_x = int(int(objects['left']) / image_pixel_by)
             bbox_y = int(int(objects['top']) // image_pixel_by)
             bbox_w = int(int(objects['width']) // image_pixel_by)
-            bbox_h = int(objects['height']) // image_pixel_by
+            bbox_h = int(int(objects['height']) // image_pixel_by)
             st.write(f"Bounding Box : Left: {bbox_x}, Top: {bbox_y}, Width: {bbox_w}, Height: {bbox_h}")
 
