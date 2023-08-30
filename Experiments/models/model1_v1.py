@@ -37,10 +37,10 @@ class Model1(nn.Module):
         if not load_from_saved_model:
             if vit_model == VitModels.ViT_L_16:
                 model.load_from(np.load(
-                    "C:/UoM/Semester 5/CS3501_Data_Science_and_Engineering_Project/visual-product-recognition/Experiments/model_checkpoints/ViT-L_16-224.npz"))
+                    "/home/group15/VPR/Project_Code/Experiments/model_checkpoints/ViT-L_16-224.npz"))
             else:
                 model.load_from(np.load(
-                    "C:/UoM/Semester 5/CS3501_Data_Science_and_Engineering_Project/visual-product-recognition/Experiments/model_checkpoints/ViT-L_16-224.npz"))
+                    "/home/group15/VPR/Project_Code/Experiments/model_checkpoints/ViT-B_16-224.npz"))
 
         self.encoder = nn.Sequential(*[model.transformer.embeddings, model.transformer.encoder])
 

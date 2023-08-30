@@ -1,12 +1,12 @@
 from experiment import Experiment
 
-training_dataset_path = '/hhdj'
-validation_dataset_path = '/bfhbfh'
-query_dataset_path = '/kkfkf'
-gallery_dataset_path = '/bhdbhhdb'
-train_validation_image_dir = '/jddjkj'
-query_image_dir = '/njdnjd'
-gallery_image_dir = '/hhdfbhdf'
+training_dataset_path = '/home/group15/VPR/Project_Code/Data Preprocessing/generated_datasets/train_dataset.csv'
+validation_dataset_path = '/home/group15/VPR/Project_Code/Data Preprocessing/generated_datasets/validation_dataset.csv'
+query_dataset_path = '/home/group15/VPR/Project_Code/Data Preprocessing/generated_datasets/test_queries.csv'
+gallery_dataset_path = '/home/group15/VPR/Project_Code/Data Preprocessing/generated_datasets/test_gallery.csv'
+train_validation_image_dir = '/home/group15/VPR/train_validation_images'
+query_image_dir = '/home/group15/VPR/query_images'
+gallery_image_dir = '/home/group15/VPR/gallery_images'
 
 # Experiment 1 ######################################################################################
 """

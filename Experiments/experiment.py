@@ -59,7 +59,8 @@ class Experiment:
         :param query_dataset: Path of dataset containing information about queries.
         :param gallery_dataset: Path of dataset containing information about gallery images.
         :param train_validation_image_dir: Folder path where images of training and validation images are located.
-        :param test_image_dir: Folder path where images of test images are located.
+        :param query_image_dir: Folder path where query images of test images are located.
+        :param gallery_image_dir: Folder path where gallery images of test images are located
         :param vit_model: The variation of the ViT model to be used in the experiment.
         :param linear_layer_output_dim: Number of output neurons in the linear layer.
         :param distance_measure: Cosine distance, Euclidean distance or Manhattan Distance.
