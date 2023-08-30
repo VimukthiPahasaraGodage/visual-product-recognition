@@ -20,7 +20,7 @@ transformations = {
         transforms.RandomApply([transforms.RandomRotation((0, 180))], p=0.4),
         transforms.RandomApply([transforms.RandomHorizontalFlip()], p=0.3),
         transforms.RandomApply([transforms.RandomVerticalFlip()], p=0.2),
-        transforms.RandomApply([transforms.GaussianBlur(kernel_size=10)], p=0.1),
+        transforms.RandomApply([transforms.GaussianBlur(kernel_size=5)], p=0.1),
         transforms.ToTensor()
     ]),
     'validation_transformation_1': transforms.Compose([
