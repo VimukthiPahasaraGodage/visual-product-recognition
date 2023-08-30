@@ -8,7 +8,8 @@ import glob
 
 
 def load_images():
-
+    image_files = glob.glob("C:\\UoM\\Semester_5\\CS3501_Data_Science_and_Engineering_Project\\visual-product-recognition\\Pictures\\*.*")
+    st.write(image_files)
 
 
 # Title of the app

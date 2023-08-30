@@ -403,7 +403,7 @@ class Experiment:
             print(gtp_indices.shape)
             _, sort_indices = torch.sort(distances, dim=0, descending=True)
             print(sort_indices)
-            rearranged_gpts = torch.unsqueeze(torch.squeeze(gtp_indices[torch.add(1, sort_indices)]), 1)
+            rearranged_gpts = torch.unsqueeze(torch.squeeze(gtp_indices[sort_indices]), 1)
             print(rearranged_gpts)
             gtp_positions, _ = torch.sort(torch.squeeze(torch.multiply(rearranged_gpts, torch.add(1, sort_indices))),
                                           dim=0,
