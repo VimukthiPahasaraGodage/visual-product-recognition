@@ -96,7 +96,7 @@ class Experiment:
 
         # CUDA for PyTorch
         use_cuda = torch.cuda.is_available()
-        device = torch.device("cuda:0" if use_cuda else "cpu")
+        self.device = torch.device("cuda:0" if use_cuda else "cpu")
         torch.backends.cudnn.benchmark = True
 
         # Dataloader parameters
@@ -125,7 +125,7 @@ class Experiment:
         self.model = self.__initialize_model()
 
         # Use gpu for model training if available
-        self.model.to(device)
+        self.model.to(self.device)
 
         # freeze the ViT model or unfreeze all the layers of the model
         non_frozen_parameters = self.__freeze_unfreeze_layers(self.model)
@@ -208,7 +208,7 @@ class Experiment:
                                                                                            self.optimizer_type))
         return writer
 
-    def __train_one_epoch(self, epoch_index, tb_writer):
+    def __train_one_epoch(self, device, epoch_index, tb_writer):
         """
         The Training Loop
         -----------------
@@ -242,6 +242,8 @@ class Experiment:
         for idx, data in enumerate(self.training_generator):
             # Every data instance is an input + label pair
             img_1, img_2, labels = data
+
+            img_1, img_2, labels = img_1.to(device), img_2.to(device), labels.to(device)
 
             # Zero your gradients for every batch!
             self.optimizer.zero_grad()
@@ -295,7 +297,7 @@ class Experiment:
 
             # Make sure gradient tracking is on, and do a pass over the data
             self.model.train(True)
-            avg_loss = self.__train_one_epoch(epoch_number, self.writer)
+            avg_loss = self.__train_one_epoch(self.device, epoch_number, self.writer)
 
             running_vloss = 0.0
             # Set the model to evaluation mode, disabling dropout and using population
