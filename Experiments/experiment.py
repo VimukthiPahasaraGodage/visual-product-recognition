@@ -366,9 +366,9 @@ class Experiment:
         average_precisions = torch.tensor([0])
 
         number_of_queries = 10
-        i = 0
+        query_index = 0
         for index, row in queries.iterrows():
-            if i >= number_of_queries:
+            if query_index >= number_of_queries:
                 break
             product_id = row['id']
             test_set = TestDataset(row['img'],
