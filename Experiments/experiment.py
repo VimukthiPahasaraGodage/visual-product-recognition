@@ -383,13 +383,14 @@ class Experiment:
                                    transformations['testing_transformation_1'])
             test_generator = DataLoader(test_set, batch_size=64, shuffle=False, num_workers=32)
 
-            distances = torch.tensor([[0]]).to(device)
-            gtp_indices = torch.tensor([[0]]).to(device)
+            distances = torch.tensor([[0]]).cpu()
+            gtp_indices = torch.tensor([[0]]).cpu()
 
             for idx, data in enumerate(test_generator):
                 query, gallery_img, label = data
-                query, gallery_img, label = query.to(device), gallery_img.to(device), label.to(device)
-                dist = torch.unsqueeze(self.model(query, gallery_img), dim=1)
+                query, gallery_img, label = query.to(device), gallery_img.to(device), label.cpu()
+                dist = self.model(query, gallery_img)
+                dist = dist.cpu()
                 # gtps = torch.sub(1, torch.abs(torch.round(torch.clamp(torch.sub(product_id, label), min=-1, max=1))))
                 gtps = torch.unsqueeze(label, dim=1)
                 print(label)
