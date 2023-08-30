@@ -386,15 +386,16 @@ class Experiment:
             distances = torch.tensor([[0]]).cpu()
             gtp_indices = torch.tensor([[0]]).cpu()
 
-            for idx, data in enumerate(test_generator):
-                query, gallery_img, label = data
-                query, gallery_img, label = query.to(device), gallery_img.to(device), label.cpu()
-                dist = self.model(query, gallery_img)
-                dist = torch.unsqueeze(dist, dim=1).cpu()
-                # gtps = torch.sub(1, torch.abs(torch.round(torch.clamp(torch.sub(product_id, label), min=-1, max=1))))
-                gtps = torch.unsqueeze(label, dim=1)
-                distances = torch.cat((distances, dist), dim=0)
-                gtp_indices = torch.cat((gtp_indices, gtps), dim=0)
+            with torch.no_grad():
+                for idx, data in enumerate(test_generator):
+                    query, gallery_img, label = data
+                    query, gallery_img, label = query.to(device), gallery_img.to(device), label.cpu()
+                    dist = self.model(query, gallery_img)
+                    dist = torch.unsqueeze(dist, dim=1).cpu()
+                    # gtps = torch.sub(1, torch.abs(torch.round(torch.clamp(torch.sub(product_id, label), min=-1, max=1))))
+                    gtps = torch.unsqueeze(label, dim=1)
+                    distances = torch.cat((distances, dist), dim=0)
+                    gtp_indices = torch.cat((gtp_indices, gtps), dim=0)
 
             distances = distances[1:]
             gtp_indices = gtp_indices[1:]

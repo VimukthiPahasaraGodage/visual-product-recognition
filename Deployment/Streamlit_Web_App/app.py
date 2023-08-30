@@ -6,6 +6,11 @@ from PIL import Image
 from streamlit_drawable_canvas import st_canvas
 import glob
 
+
+def load_images():
+
+
+
 # Title of the app
 st.title("Visual Product Recognition Demo")
 
@@ -70,7 +75,7 @@ if image_data is not None:
             bbox_h = int(int(objects['height']) // image_pixel_by)
             st.write(f"Bounding Box : Left: {bbox_x}, Top: {bbox_y}, Width: {bbox_w}, Height: {bbox_h}")
 
-        if st.button("Search Similar Products", type="primary"):
-            st.write('fuck')
+            if st.button("Search Similar Products", type="primary"):
+                load_images()
 
 
