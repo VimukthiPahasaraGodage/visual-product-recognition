@@ -2,8 +2,8 @@ from experiment import Experiment
 from models.model1_v1 import DistanceMeasures
 from models.model1_v1 import VitModels
 
-training_dataset_path = '/home/group15/VPR/Project_Code/Data Preprocessing/generated_datasets/train_dataset_tiny.csv'
-validation_dataset_path = '/home/group15/VPR/Project_Code/Data Preprocessing/generated_datasets/validation_dataset_tiny.csv'
+training_dataset_path = '/home/group15/VPR/Project_Code/Data Preprocessing/generated_datasets/train_dataset_tiniest.csv'
+validation_dataset_path = '/home/group15/VPR/Project_Code/Data Preprocessing/generated_datasets/validation_dataset_tiniest.csv'
 query_dataset_path = '/home/group15/VPR/Project_Code/Data Preprocessing/generated_datasets/test_queries.csv'
 gallery_dataset_path = '/home/group15/VPR/Project_Code/Data Preprocessing/generated_datasets/test_gallery.csv'
 train_validation_image_dir = '/home/group15/VPR/train_validation_images'
@@ -58,7 +58,7 @@ match experiment_number:
             lr_reduce_factor=0.1,
             lr_patience=2,
             lr_cooldown=0,
-            batch_size=16,
+            batch_size=4,
             num_epochs=1)
 
         # Results of Experiment 2

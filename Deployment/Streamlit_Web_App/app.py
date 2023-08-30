@@ -19,11 +19,11 @@ canvas_max_width = 500
 if image_data is not None:
     uploaded_image = Image.open(image_data)
     width, height = uploaded_image.size
-    st.write(f"{width}, {height}")
 
     canvas_height = canvas_max_height
     canvas_width = canvas_max_width
 
+    image_pixel_by = 1
     if width >= height:
         image_pixel_by = canvas_max_width / width
         canvas_height = int(height * image_pixel_by)
@@ -44,45 +44,28 @@ if image_data is not None:
     )
 
     multiple_bounding_box_error = None
+    bbox_x = 0
+    bbox_y = 0
+    bbox_w = 0
+    bbox_h = 0
 
     if canvas_result.json_data is not None:
         objects = pd.json_normalize(canvas_result.json_data["objects"])  # need to convert obj to str because PyArrow
-        if len(objects) > 1:
+
+        number_of_bounding_boxes = len(objects)
+        if number_of_bounding_boxes > 1:
             multiple_bounding_box_error = st.error('You cannot have multiple bounding boxes within a single image. '
                                                    'Please undo the previously drawn bounding box before drawing'
-                                                   'another', icon=)
+                                                   'another', icon="🚨")
+        elif number_of_bounding_boxes == 1 and multiple_bounding_box_error is not None:
+            multiple_bounding_box_error.empty()
+
         for col in objects.select_dtypes(include=['object']).columns:
             objects[col] = objects[col].astype("str")
-        st.dataframe(objects)
+        if number_of_bounding_boxes == 1:
+            bbox_x = int(int(objects['left']) / image_pixel_by)
+            bbox_y = int(int(objects['top']) // image_pixel_by)
+            bbox_w = int(int(objects['width']) // image_pixel_by)
+            bbox_h = int(objects['height']) // image_pixel_by
+            st.write(f"Bounding Box : Left: {bbox_x}, Top: {bbox_y}, Width: {bbox_w}, Height: {bbox_h}")
 
-# drawing_mode = st.sidebar.selectbox(
-#     "Drawing tool:", ("point", "freedraw", "line", "rect", "circle", "transform")
-# )
-#
-# stroke_width = st.sidebar.slider("Stroke width: ", 1, 25, 3)
-# if drawing_mode == 'point':
-#     point_display_radius = st.sidebar.slider("Point display radius: ", 1, 25, 3)
-# stroke_color = st.sidebar.color_picker("Stroke color hex: ")
-# bg_color = st.sidebar.color_picker("Background color hex: ", "#eee")
-# bg_image = st.sidebar.file_uploader("Background image:", type=["png", "jpg"])
-
-# canvas_result = st_canvas(
-#     fill_color="rgba(255, 165, 0, 0.3)",  # Fixed fill color with some opacity
-#     stroke_width=5,
-#     stroke_color="#00FFFF",
-#     background_color="#DDDDDD",
-#     background_image=Image.open(bg_image) if bg_image else None,
-#     update_streamlit=realtime_update,
-#     height=150,
-#     drawing_mode=drawing_mode,
-#     point_display_radius=point_display_radius if drawing_mode == 'point' else 0,
-#     key="canvas",
-# )
-
-# realtime_update = st.sidebar.checkbox("Update in realtime", True)
-
-# Adding a plot
-x = np.linspace(0, 10, 100)
-y = np.sin(x)
-plt.plot(x, y)
-st.pyplot(plt)

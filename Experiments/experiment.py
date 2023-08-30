@@ -390,6 +390,10 @@ class Experiment:
                 query, gallery_img, label = data
                 query, gallery_img, label = query.to(device), gallery_img.to(device), label.to(device)
                 dist = self.model(query, gallery_img)
+                print(dist)
+                print(dist.shape)
+                print(distances)
+                print(distances.shape)
                 gtps = torch.sub(1, torch.abs(torch.round(torch.clamp(torch.sub(product_id, label), min=-1, max=1))))
                 distances = torch.cat((distances, dist), dim=0)
                 gtp_indices = torch.cat((gtp_indices, gtps), dim=0)
