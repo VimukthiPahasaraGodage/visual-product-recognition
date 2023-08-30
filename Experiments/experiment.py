@@ -346,6 +346,9 @@ class Experiment:
             epoch_number += 1
 
     def test(self):
+        # The device used for model inference(CUDA)
+        device = self.device
+
         # Read query dataframe
         queries = pd.read_csv(self.query_dataset, low_memory=False)
 
@@ -374,6 +377,7 @@ class Experiment:
 
             for idx, data in enumerate(test_generator):
                 query, gallery_img, label = data
+                query, gallery_img, label = query.to(device), gallery_img.to(device), label.to(device)
                 dist = self.model(query, gallery_img)
                 gtps = torch.sub(1, torch.abs(torch.round(torch.clamp(torch.sub(product_id, label), min=-1, max=1))))
                 distances = torch.cat((distances, dist), dim=0)
