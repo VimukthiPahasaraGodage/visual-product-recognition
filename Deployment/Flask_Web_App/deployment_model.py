@@ -63,13 +63,14 @@ class DeploymentModel:
 
         gallery_generator = DataLoader(gallery_set, batch_size=100, shuffle=False, num_workers=12)
 
-        distances = torch.tensor([[0]]).to(device)
+        distances = torch.tensor([[0]]).cpu()
 
         with torch.no_grad():
             for idx, data in enumerate(gallery_generator):
                 query, gallery_img, label = data
-                query, gallery_img, label = query.to(device), gallery_img.to(device), label.to(device)
+                query, gallery_img= query.to(device), gallery_img.to(device)
                 dist = torch.unsqueeze(self.model(query, gallery_img), dim=1)
+                dist = dist.cpu()
                 distances = torch.cat((distances, dist), dim=0)
 
         distances = distances[1:]
