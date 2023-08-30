@@ -363,7 +363,7 @@ class Experiment:
         self.model.eval()
 
         query_index = 0
-        average_precisions = torch.tensor([[0]]).to(device)
+        average_precisions = torch.tensor([[0]])
 
         number_of_queries = 10
         i = 0
