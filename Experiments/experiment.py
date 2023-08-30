@@ -105,7 +105,7 @@ class Experiment:
                   'num_workers': 12}
 
         # Make the dissimilar label -1 from 0 when using cosine similarity as distance measurement
-        if distance_measure == DistanceMeasures.COSINE:
+        if distance_measure.value == DistanceMeasures.COSINE.value:
             _target_transform = target_transformations['cosine_distance_transform']
         else:
             _target_transform = None
@@ -171,7 +171,7 @@ class Experiment:
         return non_frozen_parameters
 
     def __initialize_optimizer(self, non_frozen_parameters):
-        if self.optimizer_type == OptimizersType.Adam:
+        if self.optimizer_type.value == OptimizersType.Adam.value:
             optimizer = torch.optim.Adam(non_frozen_parameters, lr=self.learning_rate)
         else:
             optimizer = torch.optim.SGD(non_frozen_parameters, lr=self.learning_rate, momentum=0.9)
@@ -190,7 +190,7 @@ class Experiment:
         return lr_scheduler
 
     def __initialize_loss_function(self):
-        if self.distance_measure == DistanceMeasures.COSINE:
+        if self.distance_measure.value == DistanceMeasures.COSINE.value:
             loss_fn = cosine_similarity_contrastive_loss
         else:
             loss_fn = euclidean_manhattan_contrastive_loss

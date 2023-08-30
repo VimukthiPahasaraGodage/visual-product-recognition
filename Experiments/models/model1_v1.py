@@ -27,7 +27,7 @@ class Model1(nn.Module):
 
         config = CONFIGS[vit_model.value]
 
-        if vit_model == VitModels.ViT_L_16:
+        if vit_model.value == VitModels.ViT_L_16.value:
             embedding_dim = 1024
         else:
             embedding_dim = 768
@@ -35,7 +35,7 @@ class Model1(nn.Module):
         model = VisionTransformer(config, num_classes=1000, zero_head=False, img_size=224, vis=True)
 
         if not load_from_saved_model:
-            if vit_model == VitModels.ViT_L_16:
+            if vit_model.value == VitModels.ViT_L_16.value:
                 model.load_from(np.load(
                     "/home/group15/VPR/Project_Code/Experiments/model_checkpoints/ViT-L_16-224.npz"))
             else:
@@ -46,9 +46,9 @@ class Model1(nn.Module):
 
         self.linear = nn.Linear(embedding_dim, linear_layer_output_dim)
 
-        if distance_measure == DistanceMeasures.COSINE:
+        if distance_measure.value == DistanceMeasures.COSINE.value:
             self.distance = nn.CosineSimilarity()
-        elif distance_measure == DistanceMeasures.EUCLIDEAN:
+        elif distance_measure.value == DistanceMeasures.EUCLIDEAN.value:
             self.distance = nn.PairwiseDistance(p=2.0)
         else:
             self.distance = nn.PairwiseDistance(p=1.0)
