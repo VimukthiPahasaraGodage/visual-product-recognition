@@ -46,6 +46,8 @@ class Experiment:
                  learning_rate=0.001,
                  use_lr_scheduling=False,
                  lr_reduce_factor=0.1,
+                 lr_patience=10,
+                 lr_cooldown=5,
                  batch_size=32,
                  shuffle=True,
                  num_epochs=100,
@@ -92,6 +94,8 @@ class Experiment:
         self.learning_rate = learning_rate
         self.use_lr_scheduling = use_lr_scheduling
         self.lr_reduce_factor = lr_reduce_factor
+        self.lr_patience = lr_patience
+        self.lr_cooldown = lr_cooldown
         self.num_epochs = num_epochs
 
         # CUDA for PyTorch
@@ -184,8 +188,8 @@ class Experiment:
         lr_scheduler = ReduceLROnPlateau(optimizer,
                                          mode='min',
                                          factor=self.lr_reduce_factor,
-                                         patience=10,
-                                         cooldown=5,
+                                         patience=self.lr_patience,
+                                         cooldown=self.lr_cooldown,
                                          min_lr=0.00001)
         return lr_scheduler
 
@@ -286,6 +290,8 @@ class Experiment:
 
         :return:
         """
+        # The device used for model inference(CUDA)
+        device = self.device
 
         EPOCHS = self.num_epochs
 
@@ -308,6 +314,7 @@ class Experiment:
             with torch.no_grad():
                 for i, vdata in enumerate(self.validation_generator):
                     vimg_1, vimg_2, label = vdata
+                    vimg_1, vimg_2, label = vimg_1.to(device), vimg_2.to(device), label.to(device)
                     vdistance = self.model(vimg_1, vimg_2)
                     vloss = self.loss_fn(vdistance, label)
                     running_vloss += vloss
@@ -327,7 +334,7 @@ class Experiment:
             # Track the best performance, and save the model's state
             if avg_vloss < best_vloss:
                 best_vloss = avg_vloss
-                model_path = '{}_experiment.{}_model1_epoch.{}_vit_model.{}_outdim.{}_distm.{}_optim.{}' \
+                model_path = 'saved.{}_experiment.{}_model1_epoch.{}_vit_model.{}_outdim.{}_distm.{}_optim.{}' \
                     .format(datetime.now().strftime('%Y%m%d_%H%M%S'),
                             self.experiment_name,
                             epoch_number,
