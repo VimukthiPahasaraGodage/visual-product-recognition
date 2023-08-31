@@ -58,9 +58,9 @@ class Model1(nn.Module):
         embeddings_2, att_weights_2 = self.encoder(img2)
         embedding_cls_token_1 = embeddings_1[:, 0, :]  # [batch_size, embedding_dim]
         embedding_cls_token_2 = embeddings_2[:, 0, :]
-        vector_1 = self.linear(embedding_cls_token_1)  # [batch_size, embedding_dim * 2]
-        vector_2 = self.linear(embedding_cls_token_2)
-        l2_normalized_vector_1 = nn.functional.normalize(vector_1, p=2.0, dim=1)  # [batch_size, embedding_dim * 2]
-        l2_normalized_vector_2 = nn.functional.normalize(vector_2, p=2.0, dim=1)
-        output = self.distance(l2_normalized_vector_1, l2_normalized_vector_2)  # [batch_size, 1]
+        # vector_1 = self.linear(embedding_cls_token_1)  # [batch_size, embedding_dim * 2]
+        # vector_2 = self.linear(embedding_cls_token_2)
+        # l2_normalized_vector_1 = nn.functional.normalize(vector_1, p=2.0, dim=1)  # [batch_size, embedding_dim * 2]
+        # l2_normalized_vector_2 = nn.functional.normalize(vector_2, p=2.0, dim=1)
+        output = self.distance(embedding_cls_token_1, embedding_cls_token_2)  # [batch_size, 1]
         return output
