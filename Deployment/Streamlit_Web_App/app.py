@@ -24,7 +24,7 @@ model = DeploymentModel(
 
 def load_images(img_list, limit=100):
     for i, image_file in enumerate(img_list):
-        if i > limit:
+        if i < limit:
             if i % 5 == 0:
                 cols = st.columns(5)
             cols[i % 5].image('gallery_images/' + image_file)
