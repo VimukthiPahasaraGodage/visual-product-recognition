@@ -27,7 +27,7 @@ def load_images(img_list, limit=100):
         if i < limit:
             if i % 5 == 0:
                 cols = st.columns(5)
-            cols[i % 5].image('gallery_images/' + image_file)
+            cols[i % 5].image('/home/group15/VPR/Project_Code/Deployment/Streamlit_Web_App/gallery_images/' + image_file)
 
 
 # Title of the app
