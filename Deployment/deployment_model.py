@@ -5,7 +5,9 @@ import torch
 from torch.utils.data import DataLoader
 
 from Experiments.datasets import TestDataset
+from Experiments.models.model1_v1 import DistanceMeasures
 from Experiments.models.model1_v1 import Model1
+from Experiments.models.model1_v1 import VitModels
 from Experiments.transform_functions import transformations
 
 
@@ -19,7 +21,10 @@ class DeploymentModel:
                  gallery_dataset,
                  gallery_image_dir,
                  model=AvailableModels.Models1,
-                 **model_params):
+                 vit_model=VitModels.ViT_L_16,
+                 distance_measure=DistanceMeasures.COSINE,
+                 linear_layer_output_dim=2048,
+                 load_from_saved_model=True):
 
         self.gallery_dataset = gallery_dataset
         self.gallery_image_dir = gallery_image_dir
@@ -32,7 +37,10 @@ class DeploymentModel:
         checkpoint = torch.load(model_weights_path)
         self.model = None
         if model == AvailableModels.Models1:
-            self.model = Model1(model_params)
+            self.model = Model1(vit_model=vit_model,
+                                distance_measure=distance_measure,
+                                linear_layer_output_dim=linear_layer_output_dim,
+                                load_from_saved_model=load_from_saved_model)
         self.model.load_state_dict(checkpoint['model_state_dict'])
         # Use gpu for model training if available
         self.model.to(self.device)
@@ -68,7 +76,7 @@ class DeploymentModel:
         with torch.no_grad():
             for idx, data in enumerate(gallery_generator):
                 query, gallery_img, label = data
-                query, gallery_img= query.to(device), gallery_img.to(device)
+                query, gallery_img = query.to(device), gallery_img.to(device)
                 dist = torch.unsqueeze(self.model(query, gallery_img), dim=1)
                 dist = dist.cpu()
                 distances = torch.cat((distances, dist), dim=0)

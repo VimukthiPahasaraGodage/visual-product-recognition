@@ -1,4 +1,3 @@
-import glob
 from datetime import datetime
 
 import pandas as pd
@@ -12,17 +11,16 @@ from Deployment.deployment_model import DeploymentModel
 from Experiments.models.model1_v1 import DistanceMeasures
 from Experiments.models.model1_v1 import VitModels
 
-model_params = {'vit_model': VitModels.ViT_B_16,
-                'linear_layer_output_dim': 768,
-                'distance_measure': DistanceMeasures.EUCLIDEAN,
-                'load_from_saved_model': True}
-
 model = DeploymentModel(
     '/home/group15/VPR/Project_Code/saved.20230830_225806_experiment.experiment1.unfreeze_layers.no_lr_schedule_model1_epoch.0_vit_model.VitModels.ViT_B_16_outdim.768_distm.DistanceMeasures.EUCLIDEAN_optim.OptimizersType.Adam',
     '/home/group15/VPR/Project_Code/Data Preprocessing/generated_datasets/test_gallery.csv',
     '/home/group15/VPR/gallery_images',
     AvailableModels.Models1,
-    **model_params)
+    vit_model=VitModels.ViT_B_16,
+    linear_layer_output_dim=768,
+    distance_measure=DistanceMeasures.EUCLIDEAN,
+    load_from_saved_model=True)
+
 
 def load_images(img_list, limit=100):
     for i, image_file in enumerate(img_list):
