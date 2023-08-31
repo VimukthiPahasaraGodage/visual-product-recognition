@@ -15,25 +15,25 @@ class SquarePad:
 
 transformations = {
     'train_transformation_1': transforms.Compose([
-        SquarePad(),
+        # SquarePad(),
         transforms.ToPILImage(),
         transforms.Resize((224, 224), antialias=True),
-        transforms.RandomApply([transforms.RandomRotation((0, 180))], p=0.4),
-        transforms.RandomApply([transforms.RandomHorizontalFlip()], p=0.3),
-        transforms.RandomApply([transforms.RandomVerticalFlip()], p=0.2),
-        transforms.RandomApply([transforms.GaussianBlur(kernel_size=5)], p=0.1),
+        transforms.RandomApply([transforms.RandomRotation((0, 45))], p=0.1),
+        transforms.RandomApply([transforms.RandomHorizontalFlip()], p=0.1),
+        transforms.RandomApply([transforms.RandomVerticalFlip()], p=0.1),
+        transforms.RandomApply([transforms.GaussianBlur(kernel_size=5)], p=0.05),
         transforms.ToTensor()
     ]),
     'validation_transformation_1': transforms.Compose([
-        SquarePad(),
+        # SquarePad(),
         transforms.ToPILImage(),
-        transforms.Resize((224, 224)),
+        transforms.Resize((224, 224), antialias=True),
         transforms.ToTensor()
     ]),
     'testing_transformation_1': transforms.Compose([
-        SquarePad(),
+        # SquarePad(),
         transforms.ToPILImage(),
-        transforms.Resize((224, 224)),
+        transforms.Resize((224, 224), antialias=True),
         transforms.ToTensor()
     ])
 }

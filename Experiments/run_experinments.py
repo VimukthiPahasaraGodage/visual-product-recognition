@@ -53,9 +53,9 @@ match experiment_number:
             vit_model=VitModels.ViT_B_16,
             linear_layer_output_dim=768,
             distance_measure=DistanceMeasures.EUCLIDEAN,
-            learning_rate=0.1,
-            batch_size=32,
-            num_epochs=3)
+            learning_rate=0.01,
+            batch_size=16,
+            num_epochs=2)
 
         # Results of Experiment 2
         # ~~~~~~~~~~~~~~~~~~~~~~~
