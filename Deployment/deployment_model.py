@@ -65,7 +65,7 @@ class DeploymentModel:
                                   self.gallery_dataset,
                                   query_img_dir,
                                   self.gallery_image_dir,
-                                  transformations['test_transformation_1'])
+                                  transformations['testing_transformation_1'])
 
         device = self.device
 

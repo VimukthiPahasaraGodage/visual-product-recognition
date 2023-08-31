@@ -41,13 +41,13 @@ image_data = st.file_uploader(label='Upload the image you want to query on', typ
 canvas_max_height = 500
 canvas_max_width = 500
 
-query_image_folder = 'query_images/'
+query_image_folder = '/home/group15/VPR/Project_Code/Deployment/Streamlit_Web_App/query_images'
 
 if image_data is not None:
     timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
     image_file_name = str(timestamp) + '.jpg'
     uploaded_image = Image.open(image_data)
-    uploaded_image.save('query_images/' + image_file_name)
+    uploaded_image.save('/home/group15/VPR/Project_Code/Deployment/Streamlit_Web_App/query_images/' + image_file_name)
     width, height = uploaded_image.size
 
     canvas_height = canvas_max_height
