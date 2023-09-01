@@ -15,7 +15,7 @@ class SquarePad:
 
 transformations = {
     'train_transformation_1': transforms.Compose([
-        # SquarePad(),
+        SquarePad(),
         transforms.ToPILImage(),
         transforms.Resize((224, 224), antialias=True),
         transforms.RandomApply([transforms.RandomRotation((0, 45))], p=0.1),
@@ -25,13 +25,13 @@ transformations = {
         transforms.ToTensor()
     ]),
     'validation_transformation_1': transforms.Compose([
-        # SquarePad(),
+        SquarePad(),
         transforms.ToPILImage(),
         transforms.Resize((224, 224), antialias=True),
         transforms.ToTensor()
     ]),
     'testing_transformation_1': transforms.Compose([
-        # SquarePad(),
+        SquarePad(),
         transforms.ToPILImage(),
         transforms.Resize((224, 224), antialias=True),
         transforms.ToTensor()
